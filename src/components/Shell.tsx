@@ -1,15 +1,21 @@
 import {
+  ActionIcon,
   Anchor,
   AppShell,
   Breadcrumbs,
-  Button,
+  Text,
+  Image,
   Card,
   Group,
   Header,
   Stack,
+  useMantineColorScheme,
+  Button,
+  Divider,
 } from "@mantine/core"
-import { IconChevronLeft } from "@tabler/icons"
 import { ReactNode } from "react"
+import { IconHome, IconMoon, IconSun } from "@tabler/icons"
+import Link from "next/link"
 
 const breadcrumbsList = (path: string) => {
   // Remove any query parameters, as those aren't included in breadcrumbs
@@ -44,13 +50,29 @@ export default function Shell({
   path: string
 }) {
   const breadcrumbs = breadcrumbsList(path)
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme()
 
   return (
     <AppShell
       header={
-        <Header height={60} p="md">
-          <Group>
-            <Button leftIcon={<IconChevronLeft />}></Button>
+        <Header height={74} p="md">
+          <Group position="apart">
+            <Group grow sx={{ height: "100%" }}>
+              <Link href="/">
+                <Button variant="subtle" radius="md">
+                  <Image src={"./favicon.svg"} width={30} height={30} />
+                  <Divider mx={4} />
+                  <Text color="green" size="xl" weight="bolder">
+                    Cooter
+                  </Text>
+                </Button>
+              </Link>
+            </Group>
+            <Group>
+              <ActionIcon onClick={() => toggleColorScheme()}>
+                {colorScheme === "dark" ? <IconMoon /> : <IconSun />}
+              </ActionIcon>
+            </Group>
           </Group>
         </Header>
       }
@@ -62,9 +84,9 @@ export default function Shell({
       >
         <Breadcrumbs>
           {breadcrumbs.map(({ href, name }, key) => (
-            <Anchor href={href} key={key}>
-              {name}
-            </Anchor>
+            <Link href={href} key={key} passHref>
+              <Anchor>{name}</Anchor>
+            </Link>
           ))}
         </Breadcrumbs>
         <Card sx={{ height: "100%" }} radius="md" shadow="xl">

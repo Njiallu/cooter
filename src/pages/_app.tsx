@@ -6,6 +6,7 @@ import superjson from "superjson"
 import { AppRouter } from "../server/router"
 import { AppProps } from "next/app"
 import Head from "next/head"
+import { GetServerSidePropsContext } from "next"
 // Hooks
 import { useRouter } from "next/router"
 import { useState } from "react"
@@ -17,19 +18,20 @@ import {
   MantineProvider,
 } from "@mantine/core"
 import { NotificationsProvider } from "@mantine/notifications"
-import { GetServerSidePropsContext } from "next"
+// Global components
 import theme from "../features/Theme"
 import Shell from "../components/Shell"
 
-export function App(props: AppProps & { colorScheme: ColorScheme }) {
+function App(props: AppProps & { colorScheme: ColorScheme }) {
   const { Component, pageProps } = props
   const [colorScheme, setColorScheme] = useState<ColorScheme>(props.colorScheme)
 
   const toggleColorScheme = (value?: ColorScheme) => {
     const nextColorScheme = value || (colorScheme === "dark" ? "light" : "dark")
     setColorScheme(nextColorScheme)
-    setCookie("mantine-color-scheme", nextColorScheme, {
+    setCookie("colorscheme", nextColorScheme, {
       maxAge: 60 * 60 * 24 * 30,
+      ...props,
     })
   }
 
@@ -67,38 +69,42 @@ export function App(props: AppProps & { colorScheme: ColorScheme }) {
 }
 
 App.getInitialProps = ({ ctx }: { ctx: GetServerSidePropsContext }) => ({
-  colorScheme: getCookie("mantine-color-scheme", ctx) || "dark",
+  colorScheme: getCookie("colorscheme", ctx) ?? "light",
 })
 
-const getBaseUrl = () => {
-  if (typeof window !== "undefined") {
-    return ""
-  }
-  if (process.browser) return "" // Browser should use current path
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}` // SSR should use vercel url
+// Disabled for now as it breaks the colorscheme persistance
 
-  return `http://localhost:${process.env.PORT ?? 3000}` // dev SSR should use localhost
-}
+// const getBaseUrl = () => {
+//   if (typeof window !== "undefined") {
+//     return ""
+//   }
+//   if (process.browser) return "" // Browser should use current path
+//   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}` // SSR should use vercel url
 
-export default withTRPC<AppRouter>({
-  config({ ctx }) {
-    /**
-     * If you want to use SSR, you need to use the server's full URL
-     * @link https://trpc.io/docs/ssr
-     */
-    const url = `${getBaseUrl()}/api/trpc`
+//   return `http://localhost:${process.env.PORT ?? 3000}` // dev SSR should use localhost
+// }
 
-    return {
-      url,
-      transformer: superjson,
-      /**
-       * @link https://react-query.tanstack.com/reference/QueryClient
-       */
-      // queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
-    }
-  },
-  /**
-   * @link https://trpc.io/docs/ssr
-   */
-  ssr: false,
-})(App)
+// export default withTRPC<AppRouter>({
+//   config({ ctx }) {
+//     /**
+//      * If you want to use SSR, you need to use the server's full URL
+//      * @link https://trpc.io/docs/ssr
+//      */
+//     const url = `${getBaseUrl()}/api/trpc`
+
+//     return {
+//       url,
+//       transformer: superjson,
+//       /**
+//        * @link https://react-query.tanstack.com/reference/QueryClient
+//        */
+//       // queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
+//     }
+//   },
+//   /**
+//    * @link https://trpc.io/docs/ssr
+//    */
+//   ssr: false,
+// })(App)
+
+export default App
