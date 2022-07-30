@@ -5,12 +5,23 @@ import { Stack } from "@mantine/core"
 import { createMachine } from "../features/Game/machine"
 import { useState } from "react"
 import { Map, Robot } from "../features/Game"
+import GameVisualizer from "../components/GameVisualizer"
 
 const Home: NextPage = ({}) => {
   const map: Map = {
-    cells: [],
-    width: 15,
-    height: 15,
+    cells: [
+      { color: "green" },
+      { color: "blue", modifier: "button" },
+      { color: "blue", modifier: "robot w" },
+      { color: "blue", modifier: "barrier" },
+      undefined,
+      undefined,
+      { color: "blue", modifier: "checkpoint" },
+      undefined,
+      undefined,
+    ],
+    width: 3,
+    height: 3,
   }
   const [robot, setRobot] = useState<Robot>([])
 
@@ -22,8 +33,8 @@ const Home: NextPage = ({}) => {
         <link rel="icon" href="/favicon.svg" />
       </Head>
       <Stack>
-        {/* <GameVisualizer machine={createMachine({ map, robot })} />
-        <RobotEditor robot={robot} setRobot={setRobot} /> */}
+        <GameVisualizer machine={createMachine({ map, robot })} />
+        {/* <RobotEditor robot={robot} setRobot={setRobot} /> */}
       </Stack>
     </>
   )
