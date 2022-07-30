@@ -26,6 +26,7 @@
     "@mantine/rte": "^5.0.0",
     "@mantine/spotlight": "^5.0.0",
     "@prisma/client": "^4.1.1",
+    "@svgr/webpack": "^6.3.1",
     "@tabler/icons": "^1.78.1",
     "@trpc/client": "^9.26.2",
     "@trpc/next": "^9.26.2",
