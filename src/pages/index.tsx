@@ -1,18 +1,59 @@
 import type { NextPage } from "next"
 import Head from "next/head"
 import { trpc } from "../utils/trpc"
-import { Stack } from "@mantine/core"
+import { ActionIcon, Button, Stack } from "@mantine/core"
 import { createMachine } from "../features/Game/machine"
 import { useState } from "react"
 import { Map, Robot } from "../features/Game"
+import GameVisualizer from "../components/GameVisualizer"
+import { usePagination } from "@mantine/hooks"
+import { mapQueryStatusFilter } from "react-query/types/core/utils"
+import GamePlayer from "../components/GamePlayer"
 
 const Home: NextPage = ({}) => {
-  const map: Map = {
-    cells: [],
-    width: 15,
-    height: 15,
-  }
-  const [robot, setRobot] = useState<Robot>([])
+  const maps: Map[] = [
+    {
+      cells: [
+        { color: "green" },
+        { color: "blue", modifier: "button" },
+        { color: "blue", modifier: "robot w" },
+        { color: "blue", modifier: "barrier" },
+        undefined,
+        undefined,
+        { color: "blue", modifier: "checkpoint" },
+        undefined,
+        undefined,
+      ],
+      width: 3,
+      height: 3,
+    },
+    {
+      cells: [
+        { color: "green" },
+        { color: "blue", modifier: "robot w" },
+        { color: "blue" },
+
+        { color: "blue" },
+        undefined,
+        undefined,
+
+        { color: "blue", modifier: "checkpoint" },
+        undefined,
+        undefined,
+      ],
+      width: 3,
+      height: 3,
+    },
+  ]
+  const [robot, setRobot] = useState<Robot>([
+    [
+      { instruction: "onward" },
+      { instruction: "left", condition: "green" },
+      { instruction: "f0" },
+    ],
+  ] as Robot)
+  const { active, next, previous } = usePagination({ total: maps.length })
+  const map = maps[active - 1]
 
   return (
     <>
@@ -22,8 +63,17 @@ const Home: NextPage = ({}) => {
         <link rel="icon" href="/favicon.svg" />
       </Head>
       <Stack>
-        {/* <GameVisualizer machine={createMachine({ map, robot })} />
-        <RobotEditor robot={robot} setRobot={setRobot} /> */}
+        <Button.Group>
+          <Button onClick={previous}>Prev</Button>
+          <Button onClick={next}>Next</Button>
+        </Button.Group>
+        {map && (
+          <GamePlayer
+            machine={createMachine({ map, robot })}
+            setMachine={() => {}}
+          />
+        )}
+        {/* <RobotEditor robot={robot} setRobot={setRobot} /> */}
       </Stack>
     </>
   )
