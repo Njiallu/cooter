@@ -199,7 +199,7 @@ export const createMachine = ({
 }): Machine => ({
   robot,
   map,
-  stack: [],
+  stack: [...(robot[0] ?? [])],
   alive: true,
   done: false,
 })

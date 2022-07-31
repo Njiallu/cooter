@@ -8,8 +8,7 @@ import {
 } from "@mantine/core"
 import { IconCircle, IconSquare, IconStar, IconTriangle } from "@tabler/icons"
 import { ReactNode } from "react"
-import { threadId } from "worker_threads"
-import { Cell, CellModifier, Machine } from "../features/Game"
+import { CellModifier, Machine } from "../features/Game"
 
 const useStyles = createStyles((theme) => {
   const dark = theme.colorScheme === "dark"
@@ -55,9 +54,8 @@ const modifierIcon: Record<CellModifier, ReactNode> = {
   checkpoint: <IconStar />,
 }
 
-export default function GameVisualizer({ machine }: { machine: Machine }) {
+export default function GameVisualizer({ map }: { map: Machine["map"] }) {
   const { classes, cx } = useStyles()
-  const { map } = machine
 
   return (
     <>
@@ -65,8 +63,9 @@ export default function GameVisualizer({ machine }: { machine: Machine }) {
         <Container size="xl" p={0}>
           <Card withBorder radius="lg">
             <SimpleGrid cols={map.width} spacing={4}>
-              {map.cells.map((cell) => (
+              {map.cells.map((cell, key) => (
                 <Box
+                  key={key}
                   className={cx(
                     classes.comon,
                     cell?.color ? classes[cell.color] : classes.empty
