@@ -1,4 +1,4 @@
-import { Box, Card, Group } from "@mantine/core"
+import { Box, Card, Group, ScrollArea } from "@mantine/core"
 import { Machine } from "../features/Game"
 import OperationButton from "./OperationButton"
 
@@ -9,9 +9,9 @@ export default function StackVisualizer({
 }) {
   return (
     <Card withBorder p="xs" radius="lg">
-      <Group spacing={2}>
-        {stack.map((op) => (
-          <OperationButton op={op} />
+      <Group spacing={2} sx={{ minHeight: 40, overflowX: "clip" }}>
+        {stack.map((op, key) => (
+          <OperationButton op={op} key={key} />
         ))}
       </Group>
     </Card>
