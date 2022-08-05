@@ -40,6 +40,9 @@ interface Context {
   // State machine props the know ending states
   machine: Machine
   setMachine: Dispatch<SetStateAction<Machine>>
+
+  speed: number
+  setSpeed: Dispatch<SetStateAction<number>>
 }
 
 const PlayerContext = createContext<Context | null>(null)
@@ -53,6 +56,10 @@ export const usePlayer = (): {
   running: Context["running"]
   setRunning: Context["setRunning"]
   step: number
+
+  speed: Context["speed"]
+  setSpeed: Context["setSpeed"]
+
   next: () => void
   prev: () => void
   first: () => void
@@ -91,6 +98,8 @@ export const usePlayer = (): {
         machine,
         setMachine,
         setRunning,
+        speed,
+        setSpeed,
       } = ctx
 
       // We just need to update the step
@@ -99,7 +108,10 @@ export const usePlayer = (): {
         setStep((prev) => prev + 1)
         return
       }
-      if (!machine.alive) return
+      if (!machine.alive || machine.done) {
+        setRunning(false)
+        return
+      }
 
       // We need to compute the next state of the machine before updating
       const next = nextMachineState(machine)
@@ -119,14 +131,18 @@ export const usePlayer = (): {
       ctx.setStep(0)
     },
     last() {
-      const { history } = ctx
-      ctx.setStep(history.length - 1)
+      const { history, setRunning, setStep } = ctx
+      setStep(history.length - 1)
+      setRunning(false)
     },
 
     step: ctx.step,
     running: ctx.running,
     setRunning: ctx.setRunning,
     machine: ctx.machine,
+
+    speed: ctx.speed,
+    setSpeed: ctx.setSpeed,
   }
 }
 
@@ -143,8 +159,9 @@ export const PlayerProvider = ({
       robot: [
         [
           { instruction: "onward" },
-          { instruction: "right", condition: "green" },
+          { instruction: "left", condition: "green" },
           { instruction: "f0" },
+          { instruction: "onward" },
         ],
       ],
     })
@@ -157,6 +174,7 @@ export const PlayerProvider = ({
   ])
   const [running, setRunning] = useState(false)
   const [step, setStep] = useState(0)
+  const [speed, setSpeed] = useState(1000)
 
   return (
     <PlayerContext.Provider
@@ -173,6 +191,9 @@ export const PlayerProvider = ({
 
         machine,
         setMachine,
+
+        speed,
+        setSpeed,
       }}
     >
       {children}

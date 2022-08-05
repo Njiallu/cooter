@@ -12,6 +12,7 @@ import {
   useMantineColorScheme,
   Button,
   Divider,
+  Container,
 } from "@mantine/core"
 import { ReactNode } from "react"
 import { IconHome, IconMoon, IconSun } from "@tabler/icons"
@@ -79,7 +80,7 @@ export default function Shell({
     >
       <Stack
         sx={{
-          height: "100%",
+          minHeight: "100%",
         }}
       >
         <Breadcrumbs>
@@ -89,9 +90,22 @@ export default function Shell({
             </Link>
           ))}
         </Breadcrumbs>
-        <Card sx={{ height: "100%" }} radius="md" shadow="xl">
-          {children}
-        </Card>
+        <Container
+          size="md"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Card
+            sx={{ minHeight: "100%", minWidth: "100%" }}
+            radius="md"
+            shadow="xl"
+          >
+            {children}
+          </Card>
+        </Container>
       </Stack>
     </AppShell>
   )
