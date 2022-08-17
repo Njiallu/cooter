@@ -6,7 +6,7 @@ import superjson from "superjson"
 import { AppRouter } from "../server/router"
 import { AppProps } from "next/app"
 import Head from "next/head"
-import { GetServerSidePropsContext } from "next"
+import { GetServerSidePropsContext, NextPageContext } from "next"
 // Hooks
 import { useRouter } from "next/router"
 import { useState } from "react"
@@ -31,7 +31,7 @@ function App(props: AppProps & { colorScheme: ColorScheme }) {
     setColorScheme(nextColorScheme)
     setCookie("colorscheme", nextColorScheme, {
       maxAge: 60 * 60 * 24 * 30,
-      ...props,
+      sameSite: "lax",
     })
   }
 
@@ -67,44 +67,48 @@ function App(props: AppProps & { colorScheme: ColorScheme }) {
     </>
   )
 }
+// Disabled for now as it breaks the colorscheme persistance
 
-App.getInitialProps = ({ ctx }: { ctx: GetServerSidePropsContext }) => ({
+const getBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    return ""
+  }
+  if (process.browser) return "" // Browser should use current path
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}` // SSR should use vercel url
+
+  return `http://localhost:${process.env.PORT ?? 3000}` // dev SSR should use localhost
+}
+
+const AppExtended = withTRPC<AppRouter>({
+  config({ ctx }) {
+    /**
+     * If you want to use SSR, you need to use the server's full URL
+     * @link https://trpc.io/docs/ssr
+     */
+    const url = `${getBaseUrl()}/api/trpc`
+
+    return {
+      url,
+      transformer: superjson,
+      /**
+       * @link https://react-query.tanstack.com/reference/QueryClient
+       */
+      // queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
+    }
+  },
+  /**
+   * @link https://trpc.io/docs/ssr
+   */
+  ssr: false,
+})(App)
+
+AppExtended.getInitialProps = ({
+  ctx,
+}: {
+  ctx: GetServerSidePropsContext
+} & NextPageContext) => ({
   colorScheme: getCookie("colorscheme", ctx) ?? "light",
 })
 
-// Disabled for now as it breaks the colorscheme persistance
-
-// const getBaseUrl = () => {
-//   if (typeof window !== "undefined") {
-//     return ""
-//   }
-//   if (process.browser) return "" // Browser should use current path
-//   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}` // SSR should use vercel url
-
-//   return `http://localhost:${process.env.PORT ?? 3000}` // dev SSR should use localhost
-// }
-
-// export default withTRPC<AppRouter>({
-//   config({ ctx }) {
-//     /**
-//      * If you want to use SSR, you need to use the server's full URL
-//      * @link https://trpc.io/docs/ssr
-//      */
-//     const url = `${getBaseUrl()}/api/trpc`
-
-//     return {
-//       url,
-//       transformer: superjson,
-//       /**
-//        * @link https://react-query.tanstack.com/reference/QueryClient
-//        */
-//       // queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
-//     }
-//   },
-//   /**
-//    * @link https://trpc.io/docs/ssr
-//    */
-//   ssr: false,
-// })(App)
-
-export default App
+export default AppExtended
+// export default App
