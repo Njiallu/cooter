@@ -11,37 +11,31 @@ import {
   Stack,
   useMantineColorScheme,
   Button,
-  Divider,
   Container,
 } from "@mantine/core"
 import { ReactNode } from "react"
-import { IconHome, IconMoon, IconSun } from "@tabler/icons"
+import { IconEdit, IconList, IconMoon, IconSun } from "@tabler/icons"
 import Link from "next/link"
+import { breadcrumbsList } from "./utils"
 
-const breadcrumbsList = (path: string) => {
-  // Remove any query parameters, as those aren't included in breadcrumbs
-  const asPathWithoutQuery = path.split("?")[0]
-
-  // Break down the path between "/"s, removing empty entities
-  // Ex:"/my/nested/path" --> ["my", "nested", "path"]
-  const asPathNestedRoutes = asPathWithoutQuery
-    ?.split("/")
-    .filter((v) => v.length > 0)
-
-  // Iterate over the list of nested route parts and build
-  // a "crumb" object for each one.
-  const crumblist = asPathNestedRoutes?.map((subpath, idx) => {
-    // We can get the partial nested route for the crumb
-    // by joining together the path parts up to this point.
-    const href = "/" + asPathNestedRoutes?.slice(0, idx + 1).join("/")
-    // The title will just be the route string for now
-    const name = subpath
-    return { href, name }
-  })
-
-  // Add in a default "Home" crumb for the top-level
-  return [{ href: "/", name: "Home" }, ...(crumblist ?? [])]
+type MenuEntry = {
+  icon: ReactNode
+  link: string // url
+  label: ReactNode
 }
+
+const menuEntries: MenuEntry[] = [
+  {
+    icon: <IconList />,
+    link: "/maps",
+    label: "Maps",
+  },
+  {
+    icon: <IconEdit />,
+    link: "/map-editor",
+    label: "Editor",
+  },
+]
 
 export default function Shell({
   children,
@@ -59,16 +53,25 @@ export default function Shell({
         <Header height={74} p="md">
           <Group position="apart">
             <Group grow sx={{ height: "100%" }}>
+              {/* Home page */}
               <Link href="/">
                 <Button variant="subtle" radius="md">
-                  <Image src={"./favicon.svg"} width={30} height={30} />
-                  <Divider mx={4} />
+                  <Image src={"/favicon.svg"} width={30} height={30} mr="sm" />
                   <Text color="green" size="xl" weight="bolder">
                     Cooter
                   </Text>
                 </Button>
               </Link>
+              {/* Menu entries */}
+              {menuEntries.map(({ icon, link, label }, key) => (
+                <Link href={link} key={key}>
+                  <Button leftIcon={icon} variant="subtle" radius="md">
+                    {label}
+                  </Button>
+                </Link>
+              ))}
             </Group>
+            {/* Toggle colorscheme */}
             <Group>
               <ActionIcon onClick={() => toggleColorScheme()}>
                 {colorScheme === "dark" ? <IconMoon /> : <IconSun />}
@@ -83,6 +86,7 @@ export default function Shell({
           minHeight: "100%",
         }}
       >
+        {/* Current user path */}
         <Breadcrumbs>
           {breadcrumbs.map(({ href, name }, key) => (
             <Link href={href} key={key} passHref>
@@ -90,12 +94,14 @@ export default function Shell({
             </Link>
           ))}
         </Breadcrumbs>
+        {/* Page body */}
         <Container
           size="md"
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            width: "100%",
           }}
         >
           <Card

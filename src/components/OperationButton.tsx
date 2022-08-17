@@ -29,6 +29,7 @@ const useConditionStyles = createStyles<Cell | "comon" | "nocolor">((theme) => {
       width: 40,
       borderRadius: theme.radius.md,
       display: "flex",
+      flexShrink: 0,
       justifyContent: "center",
       alignItems: "center",
       textTransform: "capitalize",

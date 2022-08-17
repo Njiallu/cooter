@@ -14,6 +14,7 @@ import {
   Operation,
   Robot,
 } from "../features/Game"
+import { useLocalStorage } from "@mantine/hooks"
 
 interface HistoryEntry {
   stack: Operation[]
@@ -98,13 +99,10 @@ export const usePlayer = (): {
         machine,
         setMachine,
         setRunning,
-        speed,
-        setSpeed,
       } = ctx
 
       // We just need to update the step
       if (history.length - 1 > step) {
-        console.log("Next")
         setStep((prev) => prev + 1)
         return
       }
@@ -118,13 +116,11 @@ export const usePlayer = (): {
       setHistory((prev) => [...prev, { map: next.map, stack: next.stack }])
       setMachine(next)
       setStep((s) => s + 1)
-      console.log("Next state", next)
 
       // If the machine is done we can just stop playing as well
       if (next.done) setRunning(false)
     },
     prev() {
-      console.log("Prev")
       ctx.setStep((s) => (s > 0 ? s - 1 : s))
     },
     first() {
@@ -174,7 +170,10 @@ export const PlayerProvider = ({
   ])
   const [running, setRunning] = useState(false)
   const [step, setStep] = useState(0)
-  const [speed, setSpeed] = useState(1000)
+  const [speed, setSpeed] = useLocalStorage({
+    key: "player-speed",
+    defaultValue: 1000,
+  })
 
   return (
     <PlayerContext.Provider
